@@ -1,47 +1,157 @@
-const { By, until } = $selenium;
+const GLOBAL_START_TIME = Date.now();
 
-const TIMEOUT_MS = 20000;
+const assert = require('assert');
+const By = $selenium.By;
+const until = $selenium.until;
 
-async function runResilientWorkflow() {
-  // 1. Configure viewport dimensions
-  console.log('Step 1: Setting window size...');
-  await $webDriver.manage().window().setSize(1366, 768);
-
-  // 2. Open Homepage
-  console.log('Step 2: Accessing Coupang homepage...');
-  await $webDriver.get('https://www.coupang.com');
-
-  // 3. Inject stealth override to hide headless automation signature
-  try {
-    await $webDriver.executeScript(() => {
-      Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    });
-  } catch (err) {
-    console.log('Stealth script injection skipped:', err.message);
-  }
-
-  await $webDriver.sleep(2000); // Allow initial scripts and cookies to settle
-
-  // 4. Navigate via Navigation Menu (Bypasses /np/search Akamai WAF triggers)
-  console.log('Step 3: Navigating to Rocket Delivery category page...');
-  const navLink = await $webDriver.wait(
-    until.elementLocated(By.css('a[href*="rocketdelivery"], ul.header-menu a, a.rocket-delivery')),
-    TIMEOUT_MS,
-    'Navigation link not found on homepage'
-  );
-
-  await navLink.click();
-  await $webDriver.sleep(2000);
-
-  // 5. Verify product listing grid loads
-  console.log('Step 4: Verifying page content rendering...');
-  await $webDriver.wait(
-    until.elementLocated(By.css('ul#productList, .product-list, #contents, .unit-item')),
-    TIMEOUT_MS,
-    'Category page content failed to render'
-  );
-
-  console.log('Synthetic user workflow completed successfully.');
+function normalizeAssertionText(value) {
+    return String(value ?? '').replace(/\s+/g, ' ').trim();
 }
 
-runResilientWorkflow();
+async function waitForShadowContextElement(context, locator, timeoutMs) {
+    const endTime = Date.now() + timeoutMs;
+    let lastError = null;
+
+    while (Date.now() < endTime) {
+        try {
+            return await context.findElement(locator);
+        } catch (error) {
+            lastError = error;
+        }
+
+        await $webDriver.sleep(250);
+    }
+
+    throw lastError || new Error('Timed-out waiting for shadow DOM element');
+}
+
+const NR_RECORDER_METADATA = {
+    "version": 1,
+    "createdBy": "nr-synthetics-recorder",
+    "monitorType": "SCRIPT_BROWSER",
+    "steps": [
+        {
+            "ordinal": 0,
+            "type": "NAVIGATE",
+            "values": [
+                "https://www.coupang.com/",
+                ""
+            ],
+            "name": "Navigate to URL"
+        },
+        {
+            "ordinal": 1,
+            "type": "CLICK_ELEMENT",
+            "values": [
+                "//*[@id='quick-category-pc']//a[normalize-space()='로켓배송']"
+            ],
+            "name": "Click Element"
+        },
+        {
+            "ordinal": 2,
+            "type": "CLICK_ELEMENT",
+            "values": [
+                "//*[@id='quick-category-pc']//a[normalize-space()='로켓직구']"
+            ],
+            "name": "Click Element"
+        },
+        {
+            "ordinal": 3,
+            "type": "SCROLL_PAGE",
+            "values": [
+                "0",
+                "0"
+            ],
+            "name": "Scroll Page"
+        },
+        {
+            "ordinal": 4,
+            "type": "CLICK_ELEMENT",
+            "values": [
+                "//*[@href='https://www.coupang.com']"
+            ],
+            "name": "Click Element"
+        }
+    ]
+};
+
+// -- EDIT THIS SECTION TO DEFINE YOUR STEPS --
+const STEPS = [
+    {
+        name: "Navigate to URL",
+        nrStep: NR_RECORDER_METADATA.steps[0],
+        stepFn: async (obj) => {
+        await $webDriver.switchTo().defaultContent();
+        await $webDriver.get("https://www.coupang.com/");
+        }
+    },
+    {
+        name: "Click Element",
+        nrStep: NR_RECORDER_METADATA.steps[1],
+        stepFn: async (obj) => {
+        await $webDriver.switchTo().defaultContent();
+        const element = await $webDriver.findElement(By.xpath("//*[@id='quick-category-pc']//a[normalize-space()='로켓배송']"));
+        await element.click();
+        }
+    },
+    {
+        name: "Click Element",
+        nrStep: NR_RECORDER_METADATA.steps[2],
+        stepFn: async (obj) => {
+        await $webDriver.switchTo().defaultContent();
+        const element = await $webDriver.findElement(By.xpath("//*[@id='quick-category-pc']//a[normalize-space()='로켓직구']"));
+        await element.click();
+        }
+    },
+    {
+        name: "Scroll Page",
+        nrStep: NR_RECORDER_METADATA.steps[3],
+        stepFn: async (obj) => {
+        await $webDriver.switchTo().defaultContent();
+        await $webDriver.executeScript("scroll(0, 0)");
+        }
+    },
+    {
+        name: "Click Element",
+        nrStep: NR_RECORDER_METADATA.steps[4],
+        stepFn: async (obj) => {
+        await $webDriver.switchTo().defaultContent();
+        const element = await $webDriver.findElement(By.xpath("//*[@href='https://www.coupang.com']"));
+        await element.click();
+        }
+    }
+];
+
+
+// -- DO NOT EDIT BELOW THIS LINE -- 
+async function runSteps() {
+    const NUM_STEPS = STEPS.length;
+
+    console.log('===========[ SCRIPT START ]===========');
+
+    let stepNum = 0;
+    let stepResult = undefined;
+
+    for (const step of STEPS) {
+        const stepStartTime = Date.now();
+        stepNum++;
+
+        const stepName = step.name || `Step ${stepNum}`;
+        const stepStartTimestamp = new Date().toISOString();
+        console.log(`[START] Step ${stepNum} of ${NUM_STEPS}: ${stepName} started: ${stepStartTimestamp}`);
+
+        try {
+            stepResult = await step.stepFn(stepResult);
+            const stepDuration = Date.now() - stepStartTime;
+            console.log(`[END] Step ${stepNum} of ${NUM_STEPS}: ${stepName} ended. Duration: ${stepDuration} ms`);
+        } catch (error) {
+            $util.insights.set('stepFailureNum', stepNum);
+            $util.insights.set('stepFailureName', stepName);
+            console.error(`[ERROR] Step ${stepNum} of ${NUM_STEPS}: ${stepName} ->  error: ${error}`);
+            throw error;
+        }
+
+    }
+}
+
+await runSteps();
