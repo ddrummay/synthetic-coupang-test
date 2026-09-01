@@ -1,13 +1,7 @@
-# Tell Terraform to import the existing monitor into state instead of creating a duplicate
-import {
-  to = newrelic_synthetics_script_monitor.coupang_monitor
-  id = "533c412f-6530-498f-8d32-1872c8583cc1"
-}
-
 # 1. Scripted Browser Monitor
 resource "newrelic_synthetics_script_monitor" "coupang_monitor" {
   status           = "ENABLED"
-  name             = "Coupang Workflow Check v2"
+  name             = "Coupang Synthetic Workflow Check v2"
   type             = "SCRIPT_BROWSER"
   period           = "EVERY_15_MINUTES"
   locations_public = ["AP_NORTHEAST_2"]
