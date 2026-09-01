@@ -4,7 +4,7 @@ resource "newrelic_synthetics_script_monitor" "coupang_monitor" {
   name             = "Coupang Browser Workflow Check"
   type             = "SCRIPT_BROWSER"
   period           = "EVERY_15_MINUTES"
-  locations_public = ["AP_NORTHEAST_2"] # Seoul, KR location
+  locations_public = ["AWS_AP_NORTHEAST_2"] # Seoul, KR location
 
   runtime_type         = "CHROME_BROWSER"
   runtime_type_version = "LATEST"
