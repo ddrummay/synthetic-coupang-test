@@ -1,26 +1,22 @@
-# 1. Create Scripted Browser Monitor
 resource "newrelic_synthetics_script_monitor" "coupang_monitor" {
   status           = "ENABLED"
   name             = "Coupang Browser Workflow Check"
   type             = "SCRIPT_BROWSER"
   period           = "EVERY_15_MINUTES"
-  locations_public = ["AWS_AP_NORTHEAST_2"] # Seoul, KR location
+  locations_public = ["AP_NORTHEAST_2"] # Must NOT include "AWS_" prefix
 
   runtime_type         = "CHROME_BROWSER"
   runtime_type_version = "LATEST"
   script_language      = "JAVASCRIPT"
 
-  # Reads the workflow script from monitors directory
   script = file("${path.module}/monitors/coupang_check.js")
 }
 
-# 2. Create Alert Policy
 resource "newrelic_alert_policy" "synthetic_policy" {
   name                = "Coupang Synthetic Alerts"
   incident_preference = "PER_CONDITION"
 }
 
-# 3. Create Alert Condition for Workflow Failures
 resource "newrelic_nrql_alert_condition" "synthetic_failure_condition" {
   policy_id                    = newrelic_alert_policy.synthetic_policy.id
   type                         = "static"
