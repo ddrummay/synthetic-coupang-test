@@ -1,7 +1,7 @@
 # 1. Scripted Browser Monitor
 resource "newrelic_synthetics_script_monitor" "coupang_monitor" {
   status           = "ENABLED"
-  name             = "Coupang Synthetic Workflow Check v2"
+  name             = "Coupang Synthetic Use Case"
   type             = "SCRIPT_BROWSER"
   period           = "EVERY_15_MINUTES"
   locations_public = ["AP_NORTHEAST_2"]
