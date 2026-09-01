@@ -2,7 +2,7 @@ resource "newrelic_synthetics_script_monitor" "coupang_monitor" {
   status           = "ENABLED"
   name             = "Coupang Workflow Check v2"
   type             = "SCRIPT_BROWSER"
-  period           = "EVERY_15_MINUTES"
+  period           = "EVERY_10_MINUTES"
   locations_public = ["AP_NORTHEAST_2"] # Must NOT include "AWS_" prefix
 
   runtime_type         = "CHROME_BROWSER"
