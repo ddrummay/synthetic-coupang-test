@@ -43,7 +43,7 @@ const NR_RECORDER_METADATA = {
             "ordinal": 1,
             "type": "CLICK_ELEMENT",
             "values": [
-                "//*[@id='quick-category-pc']//a[normalize-space()='로켓배송']"
+                "//*[@id='quick-category-pc']//a[normalize-space()='로켓직구']"
             ],
             "name": "Click Element"
         },
@@ -51,24 +51,15 @@ const NR_RECORDER_METADATA = {
             "ordinal": 2,
             "type": "CLICK_ELEMENT",
             "values": [
-                "//*[@id='quick-category-pc']//a[normalize-space()='로켓직구']"
+                "//*[@id='quick-category-pc']//a[normalize-space()='로켓배송']"
             ],
             "name": "Click Element"
         },
         {
             "ordinal": 3,
-            "type": "SCROLL_PAGE",
-            "values": [
-                "0",
-                "0"
-            ],
-            "name": "Scroll Page"
-        },
-        {
-            "ordinal": 4,
             "type": "CLICK_ELEMENT",
             "values": [
-                "//*[@href='https://www.coupang.com']"
+                "//*[@id='wa-mycoupang-link']"
             ],
             "name": "Click Element"
         }
@@ -90,7 +81,7 @@ const STEPS = [
         nrStep: NR_RECORDER_METADATA.steps[1],
         stepFn: async (obj) => {
         await $webDriver.switchTo().defaultContent();
-        const element = await $webDriver.findElement(By.xpath("//*[@id='quick-category-pc']//a[normalize-space()='로켓배송']"));
+        const element = await $webDriver.findElement(By.xpath("//*[@id='quick-category-pc']//a[normalize-space()='로켓직구']"));
         await element.click();
         }
     },
@@ -99,24 +90,16 @@ const STEPS = [
         nrStep: NR_RECORDER_METADATA.steps[2],
         stepFn: async (obj) => {
         await $webDriver.switchTo().defaultContent();
-        const element = await $webDriver.findElement(By.xpath("//*[@id='quick-category-pc']//a[normalize-space()='로켓직구']"));
+        const element = await $webDriver.findElement(By.xpath("//*[@id='quick-category-pc']//a[normalize-space()='로켓배송']"));
         await element.click();
         }
     },
     {
-        name: "Scroll Page",
+        name: "Click Element",
         nrStep: NR_RECORDER_METADATA.steps[3],
         stepFn: async (obj) => {
         await $webDriver.switchTo().defaultContent();
-        await $webDriver.executeScript("scroll(0, 0)");
-        }
-    },
-    {
-        name: "Click Element",
-        nrStep: NR_RECORDER_METADATA.steps[4],
-        stepFn: async (obj) => {
-        await $webDriver.switchTo().defaultContent();
-        const element = await $webDriver.findElement(By.xpath("//*[@href='https://www.coupang.com']"));
+        const element = await $webDriver.findElement(By.xpath("//*[@id='wa-mycoupang-link']"));
         await element.click();
         }
     }
